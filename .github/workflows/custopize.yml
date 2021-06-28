@@ -22,7 +22,7 @@ jobs:
         mv *.img input.img
         rm *.zip
     - name: "🏗 Run CustoPiZer"
-      uses: OctoPrint/custopize-action@main
+      uses: OctoPrint/custopizer-action@main
       with:
         input: build/input.img
         scripts: scripts
