@@ -1,0 +1,34 @@
+name: "Build container image"
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+    steps:
+    - name: "⬇ Checkout"
+      uses: actions/checkout@v2
+    - name: "⬇ Download latest OctoPi"
+      run: |
+        mkdir build
+        cd build
+        curl https://github.com/guysoft/OctoPi/releases/download/0.18.0/octopi-buster-armhf-lite-0.18.0.zip --output image.zip
+        unzip image.zip
+        mv *.img input.img
+        rm *.zip
+    - name: "🏗 Run CustoPiZer"
+      uses: OctoPrint/custopize-action@main
+      with:
+        input: build/input.img
+        scripts: scripts
+        output: build/output.img
+    - name: ⬆ Upload output image
+      uses: actions/upload-artifact@v1
+      with:
+        name: output.img
+        path: build/output.img
