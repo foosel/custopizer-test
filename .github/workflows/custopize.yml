@@ -25,7 +25,10 @@ jobs:
       run: |
         sudo modprobe loop
         ls -la build
-        docker run --rm --privileged -v build:/CustoPiZer/workspace -v scripts:/CustoPiZer/workspace/scripts ghcr.io/octoprint/custopizer:latest
+        docker run --rm --privileged \
+          -v ${{ github.workspace }}/build:/CustoPiZer/workspace \
+          -v ${{ github.workspace }}/scripts:/CustoPiZer/workspace/scripts \
+          ghcr.io/octoprint/custopizer:latest
     - name: ⬆ Upload output image
       uses: actions/upload-artifact@v1
       with:
