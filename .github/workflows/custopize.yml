@@ -17,7 +17,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        curl https://github.com/guysoft/OctoPi/releases/download/0.18.0/octopi-buster-armhf-lite-0.18.0.zip --output image.zip
+        curl -L https://github.com/guysoft/OctoPi/releases/download/0.18.0/octopi-buster-armhf-lite-0.18.0.zip --output image.zip
         unzip image.zip
         mv *.img input.img
         rm *.zip
