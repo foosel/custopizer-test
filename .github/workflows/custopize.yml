@@ -22,11 +22,9 @@ jobs:
         mv *.img input.img
         rm *.zip
     - name: "🏗 Run CustoPiZer"
-      uses: OctoPrint/custopizer-action@main
-      with:
-        input: build/input.img
-        scripts: scripts
-        output: build/output.img
+      run: |
+        sudo modprobe loop
+        docker run -it --rm --privileged -v ./build:/CustoPiZer/workspace -v ./scripts:/CustoPiZer/workspace/scripts ghcr.io/octoprint/custopizer:latest
     - name: ⬆ Upload output image
       uses: actions/upload-artifact@v1
       with:
