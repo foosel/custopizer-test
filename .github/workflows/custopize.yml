@@ -77,8 +77,8 @@ jobs:
         tag_name: "${{ env.OCTOPI_VERSION }}-${{ env.OCTOPRINT_VERSION }}"
         body: "Created with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)"
         files: |
-          ${{ env.IMAGE }}.zip
-          ${{ env.IMAGE }}.zip.md5
-          ${{ env.IMAGE }}.zip.sha256
+          build/${{ env.IMAGE }}.zip
+          build/${{ env.IMAGE }}.zip.md5
+          build/${{ env.IMAGE }}.zip.sha256
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
