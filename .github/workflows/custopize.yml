@@ -80,3 +80,5 @@ jobs:
           ${{ env.IMAGE }}.zip
           ${{ env.IMAGE }}.zip.md5
           ${{ env.IMAGE }}.zip.sha256
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
