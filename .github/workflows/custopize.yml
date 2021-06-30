@@ -41,7 +41,7 @@ jobs:
       run: |
         mkdir build
         cd build
-        wget -q https://octopi.octoprint.org/latest
+        wget https://octopi.octoprint.org/latest
         
         find . -name "*.zip" -exec unzip {} \;
         rm *.zip
