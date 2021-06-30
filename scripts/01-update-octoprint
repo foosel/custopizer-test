@@ -6,4 +6,8 @@ export LC_ALL=C
 source /common.sh
 install_cleanup_trap
 
-sudo -u pi /home/pi/oprint/bin/pip install -U OctoPrint
+if [ -n "$OCTOPRINT_VERSION" ]; then
+    sudo -u pi /home/pi/oprint/bin/pip install -U OctoPrint==$OCTOPRINT_VERSION
+else
+    sudo -u pi /home/pi/oprint/bin/pip install -U OctoPrint
+fi
