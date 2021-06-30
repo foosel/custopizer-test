@@ -59,7 +59,7 @@ jobs:
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
         cd build
-        mv build/output.img build/$IMAGE
+        mv output.img $IMAGE
         zip $IMAGE $IMAGE.zip
         md5sum $IMAGE.zip > $IMAGE.zip.md5
         sha256sum $IMAGE.zip > $IMAGE.zip.sha256
