@@ -60,7 +60,7 @@ jobs:
 
         cd build
         mv output.img $IMAGE
-        zip $IMAGE $IMAGE.zip
+        zip $IMAGE.zip $IMAGE
         md5sum $IMAGE.zip > $IMAGE.zip.md5
         sha256sum $IMAGE.zip > $IMAGE.zip.sha256
 
