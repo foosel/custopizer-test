@@ -53,13 +53,11 @@ jobs:
         echo "OCTOPI_VERSION=$OCTOPI_VERSION" >> $GITHUB_ENV
 
     - name: "🏗 Run CustoPiZer"
-      run: |
-        sudo modprobe loop
-        docker run --rm --privileged \
-          -e OCTOPRINT_VERSION=${{ env.OCTOPRINT_VERSION }} \
-          -v ${{ github.workspace }}/build:/CustoPiZer/workspace \
-          -v ${{ github.workspace }}/scripts:/CustoPiZer/workspace/scripts \
-          ghcr.io/octoprint/custopizer:latest
+      uses: OctoPrint/CustoPiZer@main
+      with:
+        workspace: "${{ github.workspace }}/build"
+        scripts:  "${{ github.workspace }}/scripts"
+        environment: "{ 'OCTOPRINT_VERSION': '${{ env.OCTOPRINT_VERSION }}' }"
 
     - name: "📦 Package the image"
       run: |
