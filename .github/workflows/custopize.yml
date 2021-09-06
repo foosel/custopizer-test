@@ -57,7 +57,7 @@ jobs:
       with:
         workspace: "${{ github.workspace }}/build"
         scripts:  "${{ github.workspace }}/scripts"
-        environment: "{ 'OCTOPRINT_VERSION': '${{ env.OCTOPRINT_VERSION }}' }"
+        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}" }'
 
     - name: "📦 Package the image"
       run: |
