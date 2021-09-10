@@ -181,7 +181,7 @@ jobs:
         name: "${{ env.RELEASE_NAME }}"
         description: "A Raspberry Pi distribution for 3d printers. Ships OctoPrint ${{ env.OCTOPRINT_VERSION }} out-of-the-box."
         icon: "https://octopi.octoprint.org/rpi-imager.png"
-        url: "https://github.com/OctoPrint/OctoPi-UpToDate/releases/download/${{ env.RELEASE_TAG }}/${{ steps.package-image.outputs.zip }}"
+        url: "https://github.com/OctoPrint/OctoPi-UpToDate/releases/download/${{ env.RELEASE_TAG }}/${{ steps.package-image.outputs.zip_name }}"
         output: "build/rpi-imager.json"
         image_sha256: ${{ steps.package-image.outputs.image_sha256 }}
         image_size: ${{ steps.package-image.outputs.image_size }}
@@ -197,9 +197,9 @@ jobs:
         prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
         fail_on_unmatched_files: true
         files: |
-          build/${{ steps.package-image.outputs.zip }}
-          build/${{ steps.package-image.outputs.zip }}.md5
-          build/${{ steps.package-image.outputs.zip }}.sha256
+          build/${{ steps.package-image.outputs.zip_name }}
+          build/${{ steps.package-image.outputs.zip_name }}.md5
+          build/${{ steps.package-image.outputs.zip_name }}.sha256
           build/rpi-imager.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
