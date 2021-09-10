@@ -32,11 +32,15 @@ jobs:
           let version = '';
           if (context.eventName === "respository_dispatch" && context.payload.type === "octopi_release") {
             version = context.payload.client_payload.version;
+            console.log(`Version from repository dispatch: ${version}`);
           } else if (context.eventName === "workflow_dispatch") {
             version = context.payload.inputs.octopi_version;
+            console.log(`Version from workflow dispatch: ${version}`);
           }
 
           if (version) {
+            console.log(`Fetching release of ${version}`);
+
             const query = `query {
               repository(owner: "guysoft", name: "Octopi") {
                 release(tagName:"${version}") {
@@ -57,6 +61,8 @@ jobs:
             release = result.repository.release;
 
           } else {
+            console.log("Fetching latest release");
+
             const query = `query {
               repository(owner:"guysoft", name:"OctoPi") {
                 latestRelease {
@@ -99,14 +105,17 @@ jobs:
 
     - name: "🔎 Determine OctoPrint version"
       run: |
-        if [[ "${{ github.event_name }}" = "repository_dispatch" ]]; then
+        if [[ "${{ github.event_name }}" = "repository_dispatch" && "${{ context.payload.type }}" = "octopi_release" ]]; then
           OCTOPRINT_VERSION="${{ github.event.client_payload.version }}"
+          echo "Version from repository dispatch: $OCTOPRINT_VERSION"
         else
           OCTOPRINT_VERSION="${{ github.event.inputs.octoprint_version }}"
+          echo "Version from workflow dispatch: $OCTOPRINT_VERSION"
         fi
 
         if [ -z "$OCTOPRINT_VERSION" ]; then
           OCTOPRINT_VERSION=$(curl https://pypi.org/pypi/OctoPrint/json -s | jq -r '.info.version')
+          echo "Version from PyPI: $OCTOPRINT_VERSION"
         fi
 
         # Make sure we have a published version
@@ -167,7 +176,7 @@ jobs:
         image_path: "build/${{ env.IMAGE }}"
     
     - name: "🆕 Generate rpi-imager.json snippet"
-      uses: OctoPrint/actions/rpi-imager-snippet@main
+      uses: uses: OctoPrint/actions/rpi-imager-snippet@main
       with:
         name: "${{ env.RELEASE_NAME }}"
         description: "A Raspberry Pi distribution for 3d printers. Ships OctoPrint ${{ env.OCTOPRINT_VERSION }} out-of-the-box."
