@@ -176,7 +176,7 @@ jobs:
         image_path: "build/${{ env.IMAGE }}"
     
     - name: "🆕 Generate rpi-imager.json snippet"
-      uses: uses: OctoPrint/actions/rpi-imager-snippet@main
+      uses: OctoPrint/actions/rpi-imager-snippet@main
       with:
         name: "${{ env.RELEASE_NAME }}"
         description: "A Raspberry Pi distribution for 3d printers. Ships OctoPrint ${{ env.OCTOPRINT_VERSION }} out-of-the-box."
