@@ -25,6 +25,7 @@ jobs:
       release-tag: ${{ steps.release-metadata.outputs.tag }}
       release-body: ${{ steps.release-metadata.outputs.body }}
       image-zip: ${{ steps.package-image.outputs.zip_name }}
+      release-draft: ${{ steps.release-draft.outputs.url }}
     
     steps:
 
@@ -204,15 +205,23 @@ jobs:
         zip_sha256: ${{ steps.package-image.outputs.zip_sha256 }}
         zip_size: ${{ steps.package-image.outputs.zip_size }}
 
-    - name: "⬆ Upload build result"
-      uses: actions/upload-artifact@v2
+    - name: "🔖 Create draft release & attach assets"
+      uses: softprops/action-gh-release@v1
+      id: release-draft
       with:
-        name: build
-        path: |
+        name: "${{ env.RELEASE_NAME }}"
+        tag_name: "${{ env.RELEASE_TAG }}"
+        body: "${{ env.RELEASE_BODY }}"
+        prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
+        draft: true
+        fail_on_unmatched_files: true
+        files: |
           build/${{ steps.package-image.outputs.zip_name }}
           build/${{ steps.package-image.outputs.zip_name }}.md5
           build/${{ steps.package-image.outputs.zip_name }}.sha256
           build/rpi-imager.json
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   release:
     name: "🚀 Release"
@@ -220,26 +229,13 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: live
+      url: ${{ needs.build.outputs.release-draft }}
     steps:
 
-    - name: ⬇ Download build result
-      uses: actions/download-artifact@v2
-      with:
-        name: build
-        path: build
-
-    - name: "🔖 Create release & attach assets"
+    - name: "🚀 Release for good"
       uses: softprops/action-gh-release@v1
       with:
-        name: "${{ needs.build.outputs.release-name }}"
         tag_name: "${{ needs.build.outputs.release-tag }}"
-        body: "${{ needs.build.outputs.release-body }}"
-        prerelease: ${{ contains(needs.build.outputs.octoprint-version, 'rc') }}
-        fail_on_unmatched_files: true
-        files: |
-          build/${{ needs.build.outputs.image-zip }}
-          build/${{ needs.build.outputs.image-zip }}.md5
-          build/${{ needs.build.outputs.image-zip }}.sha256
-          build/rpi-imager.json
+        draft: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
