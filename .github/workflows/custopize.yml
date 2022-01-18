@@ -169,8 +169,11 @@ jobs:
         RELEASE_TAG="${{ env.OCTOPI_VERSION }}-${{ env.OCTOPRINT_VERSION }}-$now"
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
 
-        RELEASE_BODY=""
-        (git rev-parse $RELEASE_TAG >/dev/null 2>&1) || RELEASE_BODY="Created with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)"
+        RELEASE_BODY="  * OctoPi ${{ env.OCTOPI_VERSION }}\n  * OctoPrint ${{ env.OCTOPRINT_VERSION }}"
+        if [-n "${{ github.event.inputs.update_boot }}"]; then
+          RELEASE_BODY="$RELEASE_BODY\n  * Latest kernel & bootloader"
+        fi
+        RELEASE_BODY="$RELEASE_BODY\n\nCreated with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)"
 
         echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
 
