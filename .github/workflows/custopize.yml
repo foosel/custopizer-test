@@ -13,10 +13,6 @@ on:
         description: "OctoPrint version (leave empty to use latest stable release)"
         required: false
         default: ''
-      update_boot:
-        description: "Update bootloader & kernel (leave empty to leave untouched, write 'yes' to update)"
-        required: false
-        default: ''
 
 jobs:
   build:
@@ -147,7 +143,7 @@ jobs:
       with:
         workspace: "${{ github.workspace }}/build"
         scripts:  "${{ github.workspace }}/scripts"
-        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}", "UPDATE_BOOT": "${{ github.event.inputs.update_boot }}" }'
+        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}", "UPDATE_BOOT": "yes" }'
     
     - name: "✏ Rename image"
       run: |
@@ -168,14 +164,17 @@ jobs:
         now=$(date +"%Y%m%d%H%M%S")
         RELEASE_TAG="${{ env.OCTOPI_VERSION }}-${{ env.OCTOPRINT_VERSION }}-$now"
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+        
+        # release body
 
-        RELEASE_BODY="  * OctoPi ${{ env.OCTOPI_VERSION }}\n  * OctoPrint ${{ env.OCTOPRINT_VERSION }}"
-        if [-n "${{ github.event.inputs.update_boot }}"]; then
-          RELEASE_BODY="$RELEASE_BODY\n  * Latest kernel & bootloader"
-        fi
-        RELEASE_BODY="$RELEASE_BODY\n\nCreated with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)"
-
-        echo "RELEASE_BODY=$RELEASE_BODY" >> $GITHUB_ENV
+        cat <<EOF > ./build/release.md
+  
+          * OctoPi ${{ env.OCTOPI_VERSION }}
+          * OctoPrint ${{ env.OCTOPRINT_VERSION }}
+          * Latest kernel & bootloader
+          
+        Created with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)
+        EOF
 
     - name: "📦 Package the image"
       id: package-image
@@ -201,7 +200,7 @@ jobs:
       with:
         name: "${{ env.RELEASE_NAME }}"
         tag_name: "${{ env.RELEASE_TAG }}"
-        body: "${{ env.RELEASE_BODY }}"
+        body_path: "build/release.md"
         prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
         fail_on_unmatched_files: true
         files: |
