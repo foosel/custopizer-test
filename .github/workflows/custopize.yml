@@ -13,13 +13,17 @@ on:
         description: "OctoPrint version (leave empty to use latest stable release)"
         required: false
         default: ''
+      update_boot:
+        description: "Update bootloader & kernel (leave empty to leave untouched, write 'yes' to update)"
+        required: false
+        default: ''
 
 jobs:
   build:
-    name: "🔨 Build"
+    name: "Build"
     runs-on: ubuntu-latest
-    
     steps:
+
     - name: "⬇ Checkout"
       uses: actions/checkout@v2
 
@@ -126,6 +130,7 @@ jobs:
         echo "OCTOPRINT_VERSION=$OCTOPRINT_VERSION" >> $GITHUB_ENV
 
     - name: "⬇ Download OctoPi"
+      id: octopi_download
       run: |
         mkdir build
         cd build
@@ -142,7 +147,7 @@ jobs:
       with:
         workspace: "${{ github.workspace }}/build"
         scripts:  "${{ github.workspace }}/scripts"
-        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}" }'
+        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}", "UPDATE_BOOT": "${{ github.event.inputs.update_boot }}" }'
     
     - name: "✏ Rename image"
       run: |
@@ -160,7 +165,8 @@ jobs:
         RELEASE_NAME="OctoPi ${{ env.OCTOPI_VERSION }} with OctoPrint ${{ env.OCTOPRINT_VERSION }}"
         echo "RELEASE_NAME=$RELEASE_NAME" >> $GITHUB_ENV
 
-        RELEASE_TAG="${{ env.OCTOPI_VERSION }}.op${{ env.OCTOPRINT_VERSION }}"
+        now=$(date +"%Y%m%d%H%M%S")
+        RELEASE_TAG="${{ env.OCTOPI_VERSION }}-${{ env.OCTOPRINT_VERSION }}-$now"
         echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
 
         RELEASE_BODY=""
@@ -187,14 +193,13 @@ jobs:
         zip_sha256: ${{ steps.package-image.outputs.zip_sha256 }}
         zip_size: ${{ steps.package-image.outputs.zip_size }}
 
-    - name: "🔖 Create draft release & attach assets"
+    - name: "🔖 Create release & attach assets"
       uses: softprops/action-gh-release@v1
       with:
         name: "${{ env.RELEASE_NAME }}"
         tag_name: "${{ env.RELEASE_TAG }}"
         body: "${{ env.RELEASE_BODY }}"
         prerelease: ${{ contains(env.OCTOPRINT_VERSION, 'rc') }}
-        draft: true
         fail_on_unmatched_files: true
         files: |
           build/${{ steps.package-image.outputs.zip_name }}
@@ -203,13 +208,3 @@ jobs:
           build/rpi-imager.json
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: "⬆ Upload build result"
-      uses: actions/upload-artifact@v2
-      with:
-        name: build
-        path: |
-          build/${{ steps.package-image.outputs.zip_name }}
-          build/${{ steps.package-image.outputs.zip_name }}.md5
-          build/${{ steps.package-image.outputs.zip_name }}.sha256
-          build/rpi-imager.json
