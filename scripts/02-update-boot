@@ -7,5 +7,5 @@ source /common.sh
 install_cleanup_trap
 
 if [ -n "$UPDATE_BOOT" ]; then
-    apt-get install --reinstall raspberrypi-bootloader raspberrypi-kernel
+    apt-get install --yes --reinstall raspberrypi-bootloader raspberrypi-kernel
 fi
