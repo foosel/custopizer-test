@@ -167,10 +167,9 @@ jobs:
     
     - name: "✏ Rename image"
       run: |
-        OCTOPI_VERSION="${{ env.OCTOPI_VERSION }}"
-        OCTOPRINT_VERSION="${{ env.OCTOPRINT_VERSION }}"
+        RELEASE_TAG="${{ env.RELEASE_TAG }}"
         
-        IMAGE="octopi-$OCTOPI_VERSION-$OCTOPRINT_VERSION.img"
+        IMAGE="octopi-$RELEASE_TAG.img"
         echo "IMAGE=$IMAGE" >> $GITHUB_ENV
 
         cd build
