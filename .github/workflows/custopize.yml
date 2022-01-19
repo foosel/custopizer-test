@@ -138,24 +138,6 @@ jobs:
         IMAGE=$(ls *.img | head -n 1)
         mv $IMAGE input.img
 
-    - name: "🏗 Run CustoPiZer"
-      uses: OctoPrint/CustoPiZer@main
-      with:
-        workspace: "${{ github.workspace }}/build"
-        scripts:  "${{ github.workspace }}/scripts"
-        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}", "UPDATE_BOOT": "yes" }'
-    
-    - name: "✏ Rename image"
-      run: |
-        OCTOPI_VERSION="${{ env.OCTOPI_VERSION }}"
-        OCTOPRINT_VERSION="${{ env.OCTOPRINT_VERSION }}"
-        
-        IMAGE="octopi-$OCTOPI_VERSION-$OCTOPRINT_VERSION.img"
-        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
-
-        cd build
-        mv output.img $IMAGE
-
     - name: "📝 Prepare release"
       run: |
         RELEASE_NAME="OctoPi ${{ env.OCTOPI_VERSION }} with OctoPrint ${{ env.OCTOPRINT_VERSION }}"
@@ -175,6 +157,24 @@ jobs:
           
         Created with [CustoPiZer](https://github.com/OctoPrint/CustoPiZer)
         EOF
+
+    - name: "🏗 Run CustoPiZer"
+      uses: OctoPrint/CustoPiZer@main
+      with:
+        workspace: "${{ github.workspace }}/build"
+        scripts:  "${{ github.workspace }}/scripts"
+        environment: '{ "OCTOPRINT_VERSION": "${{ env.OCTOPRINT_VERSION }}", "RELEASE_TAG": "${{ env.RELEASE_TAG }}" }'
+    
+    - name: "✏ Rename image"
+      run: |
+        OCTOPI_VERSION="${{ env.OCTOPI_VERSION }}"
+        OCTOPRINT_VERSION="${{ env.OCTOPRINT_VERSION }}"
+        
+        IMAGE="octopi-$OCTOPI_VERSION-$OCTOPRINT_VERSION.img"
+        echo "IMAGE=$IMAGE" >> $GITHUB_ENV
+
+        cd build
+        mv output.img $IMAGE
 
     - name: "📦 Package the image"
       id: package-image
