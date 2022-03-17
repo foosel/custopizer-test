@@ -2,8 +2,10 @@
 
 set -e
 
-FIRSTUSER=`getent passwd 1000 | cut -d: -f1`
-FIRSTUSERHOME=`getent passwd 1000 | cut -d: -f6`
+UID=1000
+
+FIRSTUSER=`getent passwd $UID | cut -d: -f1`
+FIRSTUSERHOME=`getent passwd $UID | cut -d: -f6`
 
 CURRENT=`grep User= /etc/systemd/system/octoprint.service | cut -d= -f2`
 
@@ -11,9 +13,20 @@ if [ "$CURRENT" = "pi" -a "$FIRSTUSER" != "pi" ]; then
     # if we get here it means that the first user was renamed but we haven't yet
     # updated all of OctoPi's files that depend on that name, so let's do that now
 
+    # first we need to figure out if we can use the new user name in systemd files
+    # directly or if we need to use the UID - we do that by checking if the
+    # escaped name differes from the plain name, if so something is non ASCII
+    # and the UID is the safer bet
+    FIRSTUSERESC=`systemd-escape "$FIRSTUSER"`
+    if [ "$FIRSTUSER" != "$FIRSTUSERESC" ]; then
+        SERVICEUSER=$UID
+    else
+        SERVICEUSER=$FIRSTUSER
+    fi
+
     # fix OctoPrint service file
     echo "Fixing service file"
-    sed -i "s!User=pi!User=$FIRSTUSER!g" /etc/systemd/system/octoprint.service
+    sed -i "s!User=pi!User=$SERVICEUSER!g" /etc/systemd/system/octoprint.service
     sed -i "s!ExecStart=/home/pi/!ExecStart=$FIRSTUSERHOME/!g" /etc/systemd/system/octoprint.service
     systemctl daemon-reload
 
